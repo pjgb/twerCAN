@@ -1,0 +1,15 @@
+{
+  "name": "twerCAN",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "charm": "~0.2.0",
+    "serialport": "~1.4.5"
+  },
+  "devDependencies": {
+    "coffee-script": "~1.7.1"
+  },
+  "scripts": {
+    "start": "node monitor.js"
+  }
+}
