@@ -1,10 +1,9 @@
-can = require('./can')
+can = require('../can')
 charm = require('charm')()
-_ = require('underscore')
-serialport = require('serialport')
-SerialPort = serialport.SerialPort
+charm.pipe(process.stdout)
+charm.reset()
 
-
+ids = [450, 389, 803, 382, 283, 485, 103]
 
 renderAll = ->
     render(msg, row+1) for msg, row in can.Message.all() when msg.needsRender
@@ -43,37 +42,21 @@ render = (msg, row) ->
         .right(30)
     , 50
 
+setInterval =>
+  for id in ids
+    msg = id.toString()
+    rand1 = Math.floor((Math.random() * 6) + 1)
+    for i in [0..rand1]
+      byte = Math.floor(Math.random() * 256)
+      msg = msg + byte.toString(16)
 
-
-sp = new SerialPort('/dev/tty.OBDLinkMX-STN-SPP', parser: serialport.parsers.readline('\r'))
-
-charm.on '^C', ->
-  charm.display('reset')
-  sp.close()
-
-sp.on 'close', ->
-  process.exit()
-
-sp.on 'open', ->
-  # TODO: initialize OBDLink
-  # ATS0 - no spaces
-  # ATL0 - no linefeeds
-  # ATH1 - show headers
-  # STP61 - set protocol
-  # STMA - monitor all packets
-
-  charm.pipe(process.stdout)
-  charm
-    .reset()
-    .cursor(false)
-
-  sp.on 'data', (message) ->
-    arbId = can.factory.parseArbId(message)
+    arbId = can.Factory.parseArbId(msg)
     lastInstance = can.Message.find(arbId)
 
     if lastInstance?
-      lastInstance.update(message)
+      lastInstance.update(msg)
     else
-      can.Factory.createMessage(message)
+      can.Factory.createMessage(msg)
 
-    renderAll()
+  renderAll()
+, 1000
